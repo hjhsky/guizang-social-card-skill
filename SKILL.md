@@ -334,3 +334,15 @@ Final response (after the user has reviewed or asked for auto-check) should incl
 - Do not guess the user's visual priority when enlarging/cropping video for readability. Offer the crop/enlarge tradeoff and apply it after the user confirms, unless the request already makes the focal region explicit.
 - Do not reuse a 21:9 cover by blindly cropping it into 1:1. Compose each ratio separately.
 - **3:4 卡必须吃满画布**。Content (text + image + data) 必须覆盖 ≥75% 画布高度。任何 >15% 画布高度的纯空白带都需要"留白理由"：(a) hero image 自带呼吸、(b) 单句宣言式 hero statement、(c) 段落顶/底 leading & trailing whitespace（前后总和 ≤15%）。**禁止用 `<div style="flex: 1"></div>` 上下夹击把内容塞到中段**——杂志页留白逻辑不适用于社交卡（杂志靠对开页吸收留白，社交卡逐张独立刷，欠填看着像 PPT 漏排）。Recipe-by-recipe 最小密度见 `references/layout-recipes.md` 每条 recipe 的「Minimum density」段。Render 后必须跑 `qa-checklist.md` 的 4 横带密度检查。
+
+
+---
+
+## 本地增补 · 渲染与交付规矩（hjhsky fork 附加，非上游原文）
+
+本节为本 fork 的附加规矩，上游原文一字未改。执行本 Skill 的 Agent 必须同时遵守本节；与默认交付习惯冲突时以本节为准。上游同步若覆盖本节，以仓库根目录 `LOCAL-ADDON.md` 为准重新附加。
+
+1. **长页形态**：长文、评审稿、讲义类内容做一页到底的长页，沿用本 Skill 的设计语言（主题色取 references 原值、网格、字体系统）组织内容，不把长文硬塞进翻页版式。
+2. **固定画布**：出图型页面 viewport 锁设计宽（如 1080），禁止添加 `@media` 响应式断点；设备差异只等比缩放，不重排。关键内容静态写死，不用 JS 动态生成。
+3. **渲染自检（不许跳过）**：交付前用 `scripts/render-shot.mjs` 把 HTML 渲成全页 PNG（playwright-core 直驱系统 Chrome，宽同画布，2 倍图），逐段目检：内容溢出、底部截断、表格错位、图片丢失、深色块文字对比度。有问题改完重渲，干净了才交付。只交 HTML 不交图，视为未完成。
+4. **内容保真**：改稿类任务先完整提取源文件全文与全部原图并列清单，排版后逐项核对；禁止概括、删节、改数字；原文矛盾只指出，保留原样待确认。
