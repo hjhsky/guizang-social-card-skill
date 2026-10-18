@@ -5,6 +5,8 @@
 ## 增补内容
 
 - `scripts/render-shot.mjs`：全页长截图脚本（新增文件）。
+- `validate-social-deck.mjs` 新增 **R10 grid tail-row void**（FAIL 级）：检测多栏容器末行塌陷。
+- `references/qa-checklist.md` 新增「Grid Tail-Row Void」小节：说明 3:4 画板下降列规则与修法。
 - `SKILL.md` 末尾「本地增补 · 渲染与交付规矩」一节（原文未改，仅追加）。
 
 ## 四条规矩

@@ -17,6 +17,7 @@
  *   R7  figure margin drift    browser-default <figure> margin offsets media alignment
  *   R8  visual bounds          measured top/bottom blank space and visual overflow
  *   R9  title gap              display title touches the next content block
+ *   R10 grid tail-row void    a multi-column container holds more items than its columns, leaving a ragged empty last row
  */
 import { chromium } from "playwright";
 import { fileURLToPath } from "node:url";
@@ -495,6 +496,47 @@ for (const s of sections) {
     });
   }
 
+  // R10 grid tail-row void (all boards)
+  // A multi-column container holding more items than its column count leaves a ragged
+  // last row: trailing cells stay empty and the block reads as broken. On 3:4 the seeded
+  // components collapse from 4 columns to 2, so 3 items silently become 2+1.
+  // Scoped to the current section element — a document-wide query would double-report
+  // every void once per section in the deck.
+  const gridVoids = await s.evaluate((sec) => {
+    const SEL = ".kpi-tower-row, .matrix-fill, .grid-3, .grid-4, .h-bar-chart, .fields, .g4, .figs";
+    const out = [];
+    sec.querySelectorAll(SEL).forEach((g) => {
+      const cols = getComputedStyle(g).gridTemplateColumns.split(/\s+/).filter(Boolean).length;
+      const kids = [...g.children].map((k) => k.getBoundingClientRect()).filter((b) => b.width > 1);
+      if (cols < 2 || kids.length <= cols) return;        // last row already full -> fine
+      const rows = new Map();
+      for (const b of kids) {
+        const key = Math.round(b.top / 4) * 4;
+        if (!rows.has(key)) rows.set(key, []);
+        rows.get(key).push(b);
+      }
+      const last = [...rows.values()].pop();
+      if (!last || last.length >= cols) return;
+      const gr = g.getBoundingClientRect();
+      const rightGap = gr.right - last[last.length - 1].right;
+      if (rightGap > gr.width * 0.18) {
+        out.push({
+          cls: g.className.split(" ").slice(0, 2).join("."),
+          cols, items: kids.length, tailCount: last.length,
+          gap: Math.round(rightGap), pct: Math.round((rightGap / gr.width) * 100),
+        });
+      }
+    });
+    return out;
+  });
+  for (const v of gridVoids) {
+    fails.push({
+      rule: "R10",
+      msg: `${v.cls} holds ${v.items} items in ${v.cols} columns — tail row has ${v.tailCount}, leaving ${v.gap}px (${v.pct}%) empty`,
+      fix: `use exactly ${v.cols} items, or switch to a single-column recipe (stacked-ledger / vs / tl) — a ragged tail cannot be fixed with spacing`,
+    });
+  }
+
   report.push({ meta, fails, warns });
 }
 
@@ -539,7 +581,7 @@ for (const { meta, fails, warns } of report) {
 }
 
 lines.push("");
-lines.push(`Legend: R1 overflow · R2 footer collision · R3 swiss bold display · R4 min font · R5 4-band density · R6 h-xl cap · R7 figure margin drift · R8 visual bounds · R9 title gap`);
+lines.push(`Legend: R1 overflow · R2 footer collision · R3 swiss bold display · R4 min font · R5 4-band density · R6 h-xl cap · R7 figure margin drift · R8 visual bounds · R9 title gap · R10 grid tail-row void`);
 lines.push(`Exit code 1 only on FAIL. Warnings are advisory.`);
 
 console.log(lines.join("\n"));

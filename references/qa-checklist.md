@@ -62,6 +62,21 @@ A poster passes when:
 
 If failing: don't shrink the canvas, don't add decorative blobs. Either expand copy (more ledger items, longer paragraphs, supporting evidence row, marginalia column) or switch recipe (M07 → M04 for genuinely-short content; M03 → M11 to add a marginal column; thin ledger → M08 Tall Ledger with bigger rows).
 
+### Grid Tail-Row Void (validator R10, FAIL-level)
+
+The seeded multi-column components **collapse on 3:4 boards** — `.kpi-tower-row` and `.matrix-fill` render 4 columns on 1:1 but only **2 columns on `.poster.xhs`**. Put an odd number of items in them and the tail row comes up ragged: one orphan cell on the left, a hole on the right. It does not overflow, so `R1`/`R8` stay green — the block just reads as broken.
+
+`R10` measures the computed column count against the actual tail-row fill and fails when more than 18% of the container width is empty at the end of a row.
+
+Covered selectors: `.kpi-tower-row`, `.matrix-fill`, `.grid-3`, `.grid-4`, `.h-bar-chart`, `.fields`, `.g4`, `.figs`.
+
+Fix by changing the item count or the recipe — spacing cannot close a ragged tail:
+
+- 3 cells into a 2-column board → drop to 2, or fold the third into a `.card`/`.card-accent` below the grid
+- 3 cells into `.matrix-fill` on 3:4 → switch to `.stacked-ledger` (vertical, reads better with 3 dated entries anyway)
+
+**Check before rendering:** on `.poster.xhs`, `kpi-tower-row` and `matrix-fill` take **2 items**, never 3. On `.poster.square` they take 3, never 4.
+
 ### Programmatic Layout Checks
 
 `validate-social-deck.mjs` reports:
@@ -69,6 +84,7 @@ If failing: don't shrink the canvas, don't add decorative blobs. Either expand c
 - `R1` / `R8`: DOM overflow and visual overflow, including measured pixel amount and the lowest overflowing element.
 - `R8`: bottom whitespace and active content height, which catches "fixed too much" layouts.
 - `R9`: title-to-content gap, which catches titles visually touching the next block.
+- `R10`: grid tail-row void — a multi-column container holding more items than its columns. FAIL-level, because the empty tail is visible in the render.
 
 Use these numbers as the first diagnosis. Multimodal inspection is still useful for taste, but overflow, empty lower bands, and title gaps should be handled from measured output first.
 

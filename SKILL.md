@@ -346,3 +346,5 @@ Final response (after the user has reviewed or asked for auto-check) should incl
 2. **固定画布**：出图型页面 viewport 锁设计宽（如 1080），禁止添加 `@media` 响应式断点；设备差异只等比缩放，不重排。关键内容静态写死，不用 JS 动态生成。
 3. **渲染自检（不许跳过）**：交付前用 `scripts/render-shot.mjs` 把 HTML 渲成全页 PNG（playwright-core 直驱系统 Chrome，宽同画布，2 倍图），逐段目检：内容溢出、底部截断、表格错位、图片丢失、深色块文字对比度。有问题改完重渲，干净了才交付。只交 HTML 不交图，视为未完成。
 4. **内容保真**：改稿类任务先完整提取源文件全文与全部原图并列清单，排版后逐项核对；禁止概括、删节、改数字；原文矛盾只指出，保留原样待确认。
+
+5. **多栏塌陷自检（R10）**：3:4 画板下 `.kpi-tower-row` 与 `.matrix-fill` 会从 4 列降为 **2 列**。往里塞奇数个单元格会让末行残缺（左侧一个孤儿格、右侧一个洞），不溢出所以 R1/R8 测不出来。渲染前先确认：`xhs` 上这两个容器放 **2 个**（不是 3 个），`square` 上放 3 个（不是 4 个）；塞 3 个就改用 `.stacked-ledger` 竖排。`validate-social-deck.mjs` 的 `R10` 会以 FAIL 级拦这类问题。
