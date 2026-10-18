@@ -8,11 +8,19 @@ if (!file || !out) { console.error('usage: node shot.mjs <input.html> <output.pn
 
 const candidates = [
   process.env.CHROME_PATH,
+  // macOS — Edge first: it is a Chromium build Playwright drives fine, and on
+  // machines without Google Chrome it is the only system browser present.
+  '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+  // Linux
   '/opt/meta-chromium/chrome',
   '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable',
   '/usr/bin/chromium', '/usr/bin/chromium-browser',
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/usr/bin/microsoft-edge', '/usr/bin/microsoft-edge-stable',
+  '/snap/bin/chromium',
 ].filter(Boolean);
 const exe = candidates.find(p => existsSync(p));
 if (!exe) { console.error('No Chrome/Chromium found. Set CHROME_PATH env to the browser executable.'); process.exit(1); }

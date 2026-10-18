@@ -25,4 +25,11 @@ npm i playwright-core   # 社交卡仓库已有 playwright 依赖，npm install 
 node scripts/render-shot.mjs <输入.html> <输出.png> [宽度=1080] [倍率=2]
 ```
 
-脚本自动探测系统 Chrome/Chromium 路径（含 /opt/meta-chromium/chrome、系统 Chrome、macOS Chrome）；探测不到时设置环境变量 CHROME_PATH 指向浏览器可执行文件。不要改用 Chromium 命令行截图（部分环境损坏），不要走 Playwright 官方浏览器下载（CDN 易中断）。
+脚本自动探测系统浏览器，**已覆盖 Edge**（macOS 与 Linux 均含）、Chrome、Chrome Canary、Chromium、Brave；探测不到时再用 `CHROME_PATH` 环境变量指定可执行文件。
+
+```bash
+# 一般直接跑即可，Edge 机器无需额外变量
+node scripts/render-shot.mjs <输入.html> <输出.png> 1080 2
+```
+
+不要改用 Chromium 命令行截图（部分环境损坏），不要走 Playwright 官方浏览器下载（CDN 易中断）。
